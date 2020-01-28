@@ -1,45 +1,41 @@
 <?php
 namespace trideout\Broadcaster;
 
-use Illuminate\Broadcasting\Broadcasters\Broadcaster;
-use Illuminate\Broadcasting\Broadcasters\UsePusherChannelConventions;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Hhxsv5\SSE\SSE;
+use Hhxsv5\SSE\Update;
+use Illuminate\Contracts\Redis\Factory as Redis;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class SseBroadcaster extends Broadcaster {
+class SseBroadcaster {
+    private $redis;
+    private $channelName;
+    private $running = false;
 
-    use UsePusherChannelConventions;
-
-    public function auth($request)
+    public function __construct(Redis $redis,string $channelName)
     {
-        $channelName = $this->normalizeChannelName(
-            $request->channel_name
-        );
-
-        if ($this->isGuardedChannel($request->channel_name) &&
-            !$this->retrieveUser($request, $channelName)) {
-            throw new AccessDeniedHttpException;
-        }
-
-        return $this->verifyUserCanAccessChannel(
-            $request, $channelName
-        );
+        $this->redis = $redis;
+        $this->channelName = $channelName;
     }
 
-    public function validAuthenticationResponse($request, $result)
+    public function start()
     {
-        if (is_bool($result)) {
-            return json_encode($result);
-        }
+        $response = new StreamedResponse();
+        $response->headers->set('Content-Type','text/event-stream');
+        $response->headers->set('Cache-Control','no-cache');
+        $response->headers->set('Connection','keep-alive');
+        $response->headers->set('X-Accel-Buffering', 'no');
 
-        $channelName = $this->normalizeChannelName($request->channel_name);
+        $response->setCallback(function() {
+            (new SSE())->start(new Update(function () {
+                $id = random_int(1, 1000);
+                $message = $this->redis->connection()->command('LPOP', [$this->channelName]);
+                if (!empty($message)) {
+                    return json_encode($message);
+                }
+                return false;//no new messages
+            }), 'new-msgs');
+        });
 
-        return json_encode(['channel_data' => [
-            'user_id' => $this->retrieveUser($request, $channelName)->getAuthIdentifier(),
-            'user_info' => $result,
-        ]]);
-    }
-
-    public function broadcast(array $channels, $event, array $payload = [])
-    {
+        return $response;
     }
 }

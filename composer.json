@@ -5,7 +5,8 @@
     "require": {
         "hhxsv5/php-sse": "^1.1",
         "laravel/framework": "6.*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-redis": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5"
