@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use trideout\Broadcaster\SseBroadcaster;
 
 class BroadcastSseServiceProvider extends ServiceProvider implements DeferrableProvider {
+
     public function register() {
 
     }
