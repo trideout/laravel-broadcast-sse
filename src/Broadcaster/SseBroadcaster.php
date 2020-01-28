@@ -11,9 +11,9 @@ class SseBroadcaster {
     private $channelName;
     private $running = false;
 
-    public function __construct(Redis $redis,string $channelName)
+    public function __construct(string $channelName)
     {
-        $this->redis = $redis;
+        $this->redis = app()->make(Redis::class);
         $this->channelName = $channelName;
     }
 
