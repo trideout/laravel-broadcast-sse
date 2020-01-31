@@ -13,7 +13,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "trideout\\SseBroadcaster\\":"laravel-broadcast-sse/src"
+            "trideout\\":"src/"
         }
     },
     "authors": [
