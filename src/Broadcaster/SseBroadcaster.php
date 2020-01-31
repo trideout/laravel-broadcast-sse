@@ -1,18 +1,13 @@
 <?php
-namespace trideout\Broadcaster;
-
-use Hhxsv5\SSE\SSE;
-use Hhxsv5\SSE\Update;
-use Illuminate\Contracts\Redis\Factory as Redis;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+namespace trideout\SseBroadcaster\Broadcaster;
 
 class SseBroadcaster {
     private $redis;
     private $channelName;
-    private $running = false;
 
     public function __construct(string $channelName)
     {
+        echo 'lala';die();
         $this->redis = app()->make(Redis::class);
         $this->channelName = $channelName;
     }
