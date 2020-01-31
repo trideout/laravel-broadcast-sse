@@ -1,5 +1,5 @@
 <?php
-namespace trideout\Broadcaster;
+namespace trideout\SseBroadcaster;
 
 use Hhxsv5\SSE\SSE;
 use Hhxsv5\SSE\Update;

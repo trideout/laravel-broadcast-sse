@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "hhxsv5/php-sse": "^1.1",
-        "laravel/framework": "6.*",
+        "laravel/framework": "5.*|6.*",
         "ext-json": "*"
     },
     "require-dev": {
