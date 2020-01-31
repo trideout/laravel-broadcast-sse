@@ -1,36 +1,41 @@
 <?php
-namespace trideout\SseBroadcaster\Broadcaster;
+namespace trideout\Broadcaster;
+
+use Hhxsv5\SSE\SSE;
+use Hhxsv5\SSE\Update;
+use Illuminate\Contracts\Redis\Factory as Redis;
 
 class SseBroadcaster {
     private $redis;
     private $channelName;
+    private $running = false;
 
-    public function __construct(string $channelName)
+    public function __construct(Redis $redis,string $channelName)
     {
-        echo 'lala';die();
-        $this->redis = app()->make(Redis::class);
+        $this->redis = $redis;
         $this->channelName = $channelName;
     }
 
     public function start()
     {
-        $response = new StreamedResponse();
-        $response->headers->set('Content-Type','text/event-stream');
-        $response->headers->set('Cache-Control','no-cache');
-        $response->headers->set('Connection','keep-alive');
-        $response->headers->set('X-Accel-Buffering', 'no');
+        $this->running = true;
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+        header('X-Accel-Buffering: no');
 
-        $response->setCallback(function() {
-            (new SSE())->start(new Update(function () {
-                $id = random_int(1, 1000);
-                $message = $this->redis->connection()->command('LPOP', [$this->channelName]);
-                if (!empty($message)) {
-                    return json_encode($message);
-                }
-                return false;//no new messages
-            }), 'new-msgs');
-        });
+        (new SSE())->start(new Update(function (){
+            $id = random_int(1, 1000);
+            $message = $this->redis->connection()->command('LPOP', [$this->channelName]);
+            if(!empty($message)){
+                return json_encode($message);
+            }
+            return false;//no new messages
+        }));
+    }
 
-        return $response;
+    public function stop()
+    {
+        $this->running = false;
     }
 }
