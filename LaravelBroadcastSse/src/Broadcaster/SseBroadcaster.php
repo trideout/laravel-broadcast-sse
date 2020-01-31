@@ -1,5 +1,5 @@
 <?php
-namespace trideout\SseBroadcaster;
+namespace LaravelBroadcastSse\Broadcaster;
 
 use Hhxsv5\SSE\SSE;
 use Hhxsv5\SSE\Update;
